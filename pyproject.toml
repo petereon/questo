@@ -1,0 +1,170 @@
+[tool.poetry]
+name = "questo"
+version = "0.1.0"
+description = "A library of extensible and modular CLI prompt elements"
+authors = ["Peter Vyboch <pvyboch1@gmail.com>"]
+license = "MIT"
+repository = 'https://github.com/petereon/questo'
+readme = 'README.md'
+keywords = ["python"]
+classifiers = ['License :: OSI Approved :: MIT License', 'Programming Language :: Python :: 3']
+packages = [{ include = "questo", from = "src" }]
+
+[tool.poe]
+verbosity = -1
+
+[tool.poe.tasks]
+"black" = { shell = "poetry run black ./src/" }
+"mypy" = { shell = "poetry run mypy ./src/" }
+"ruff" = { shell = 'poetry run ruff ./src/ --fix' }
+"perflint" = { shell = "poetry run perflint ./src/" }
+
+lint = { shell = 'echo "Running black..." ; poetry run poe black ; echo "Running unify..." ; poetry run unify ./src -r -i ; echo "Running ruff..." ; poetry run poe ruff ; echo "Running mypy..." ; poetry run poe mypy ; echo Done!' }
+"lint:watch" = {shell = "poetry run poe lint; poetry run watchmedo shell-command --patterns='*.py;*.feature;*.toml' --recursive --drop --command='echo \"\nDetected changes, rerunning...\n\" ; poetry run poe lint'"}
+"lint:perf" = { shell = "poe lint; echo 'Running perflint...' poe perflint;"}
+
+"test" = { shell = "poetry run ward" }
+"test:watch" = { shell = "poetry run ward; poetry run watchmedo shell-command --patterns='*.py;*.feature;*.toml' --recursive --drop --command='poetry run ward'" }
+
+"bdd" = { shell = "poetry run behave" }
+"bdd:watch" = { shell = "poetry run behave; poetry run watchmedo shell-command --patterns='*.py;*.feature;*.toml' --recursive --drop --command='poetry run behave'" }
+
+"test:all" = { shell = "poe test; poe bdd" }
+
+"docs" = { shell = "poetry run pydoc-markdown > APIDOC.md"}
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.pydoc-markdown.loaders]]
+type = 'python'
+search_path = ['./src']
+
+[tool.pydoc-markdown.renderer]
+type = 'markdown'
+
+[tool.ward]
+hook_module = ["ward_coverage"]
+path = ["test"]
+
+[tool.ward.plugins.coverage]
+report_type = ["term", "xml"]
+source = ["./src/"]
+omit = ["*test*", "**/__init__.py"]
+branch = true
+relative_files = true
+
+[tool.mypy]
+files = ["src"]
+exclude = [
+    "^.*test.*\\.py$",  # excluding test files
+]
+
+error_summary = true
+
+warn_return_any = true
+warn_no_return = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unreachable = true
+warn_unused_ignores = true
+
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+show_column_numbers = true
+show_error_context = true
+
+[tool.black]
+line-length = 140
+skip-string-normalization = true
+extend-exclude = "(.venv)"
+
+[tool.ruff]
+# Enable Pyflakes `E` and `F` codes by default.
+select = ["ALL"]
+ignore = []
+
+fixable = ["A", "B", "C", "D", "E", "F", "Q", "ERA", "RUF", "PGH", "ARG", "ANN", "UP", "I"]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+per-file-ignores = {}
+
+line-length = 140
+
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+target-version = "py38"
+
+[tool.ruff.mccabe]
+# Unlike Flake8, default to a complexity level of 10.
+max-complexity = 10
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+rich = "^12.2.0"
+python-yakh = "^0.3.2"
+
+
+[tool.poetry.group.dev.dependencies]
+
+# Code Scanning and Formatting
+black = { version = "*", allow-prereleases = true }
+ruff = "^0.0.239"
+mypy = "^0.942"
+radon = '*'
+xenon = '*'
+
+toml-sort = '*'
+isort = '*'
+unify = "*"
+
+## Performance
+perflint = "^0.7.3"
+
+# Testing
+ward = "^0.66.1-beta.0"
+behave = "^1.2.6"
+mock = "4.0.3"
+expycted = "^0.5.0"
+mutatest = "*"
+
+# Coverage
+ward-coverage = "^0.3.0"
+
+# Task Runner
+poethepoet = "*"
+
+# Docs
+pydoc-markdown = "^4.6.3"
+
+# CI
+pre-commit = "*"
+detect-secrets = "^1.2.0"
+
+# Utils
+watchdog = "^2.1.9"
