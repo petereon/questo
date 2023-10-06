@@ -36,14 +36,6 @@ class SelectState:
         self.error = new_state.error
 
 
-def step_till_visible(index: int, step: int, matched_option_indexes: List[int], num_options: int) -> int:
-    while True:
-        index += step
-        index = index % num_options
-        if index in matched_option_indexes:
-            return index
-
-
 def default_navigation_handler(keypress: Key, select_state: SelectState) -> SelectState:
     index = select_state.index
     exit = select_state.exit
