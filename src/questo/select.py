@@ -9,6 +9,7 @@ from yakh.key import Key, Keys
 
 from questo.internals import _apply_style, _cursor_hidden
 
+# TODO: Think about separating the renderers and naviation_handlers into separate files without creating a circular import
 
 @dataclass
 class SelectState:
@@ -47,7 +48,6 @@ def default_navigation_handler(keypress: Key, select_state: SelectState) -> Sele
         index = decrement_index(index, filtered_indexes, 1)
     elif keypress == Keys.DOWN_ARROW:
         index = increment_index(index, filtered_indexes, 1)
-
     elif keypress == Keys.RIGHT_ARROW and select_state.pagination:
         index = increment_index(index, filtered_indexes, select_state.page_size)
     elif keypress == Keys.LEFT_ARROW and select_state.pagination:
@@ -107,6 +107,7 @@ def default_renderer(
     cursor: str = ">",
     cursor_style: StyleType = "pink1",
 ) -> RenderableType:
+    # TODO: Deal with pagiantion on the renderer
     if isinstance(title_style, str):
         title_style: Style = Style.parse(title_style)
     if isinstance(cursor_style, str):
