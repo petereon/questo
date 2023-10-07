@@ -1,4 +1,4 @@
 # questo
 ## Overview
 
-An library of extensible and modular CLI prompt elements
+An aspiring library of extensible and modular CLI prompt elements
