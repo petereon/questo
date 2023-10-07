@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Optional, Union
 
 
@@ -8,6 +8,8 @@ class SelectState:
 
     options: List[str]
     title: Optional[str] = None
+    select_multiple: bool = False
+    selected_indexes: List[int] = field(default_factory=list)
     index: Union[int, None] = 0
     filter: str = ""
     pagination: bool = False
@@ -19,6 +21,8 @@ class SelectState:
     def update(self, new_state: "SelectState") -> None:
         self.options = new_state.options
         self.title = new_state.title
+        self.select_multiple = new_state.select_multiple
+        self.selected_indexes = new_state.selected_indexes
         self.index = new_state.index
         self.filter = new_state.filter
         self.pagination = new_state.pagination

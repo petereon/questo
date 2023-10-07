@@ -21,27 +21,43 @@ class DefaultRenderer(IRenderer):
         cursor: str = ">",
         cursor_style: StyleType = "cyan1 bold",
         highlight_style: StyleType = "pink1 bold",
+        tick: str = "✓",
+        tick_style: StyleType = "green",
     ) -> None:
         self.title_style = title_style
         self.cursor = cursor
         self.cursor_style = cursor_style
         self.highlight_style = highlight_style
+        self.tick = tick
+        self.tick_style = tick_style
 
     def render(self, state: SelectState) -> RenderableType:
-        title_style: Style = Style.parse(self.title_style) if isinstance(self.title_style, str) else self.title_style
-        cursor_style: Style = Style.parse(self.cursor_style) if isinstance(self.cursor_style, str) else self.cursor_style
-        highlight_style: Style = Style.parse(self.highlight_style) if isinstance(self.highlight_style, str) else self.highlight_style
+        # TODO: add support for pagination
+        title_style: Style = parse_string_style(self.title_style)
+        cursor_style: Style = parse_string_style(self.cursor_style)
+        highlight_style: Style = parse_string_style(self.highlight_style)
+        tick_style: Style = parse_string_style(self.tick_style)
 
-        filter = f"{_apply_style(state.filter, 'grey42')}" if state.filter else ""
+        filter = _apply_style(f"{state.filter}", "pink1 underline") if state.filter else ""
         title = _apply_style(f"{state.title}" if state.title else "", title_style)
         error = _apply_style(f"\n{state.error}" if state.error else "", "red")
         cursor = _apply_style(self.cursor, cursor_style)
+        tick = _apply_style(self.tick, tick_style)
+
+        options = state.options
 
         rendered_options = []
-        for i, option in enumerate(state.options):
-            matched = re.search(f"({state.filter})", option, re.IGNORECASE)
-            if matched:
-                rendered_options.append(f'{cursor if state.index == i else " "} {render_option(option, matched.group(0), highlight_style)}')
+        if state.select_multiple:
+            for i, option in enumerate(options):
+                rendered_options.append(f'{cursor if state.index == i else " "} {tick if i in state.selected_indexes else " "} {option}')
+
+        else:
+            for i, option in enumerate(options):
+                matched = re.search(f"({state.filter})", option, re.IGNORECASE)
+                if matched:
+                    rendered_options.append(
+                        f'{cursor if state.index == i else " "} {render_option(option, matched.group(0), highlight_style)}',
+                    )
 
         repr = [
             f"{title} {filter}\n",
@@ -50,6 +66,10 @@ class DefaultRenderer(IRenderer):
         ]
         rendered_options.clear()
         return "".join(repr)
+
+
+def parse_string_style(style: StyleType) -> Style:
+    return Style.parse(style) if isinstance(style, str) else style
 
 
 def render_option(option: str, match: str, highlight_style: Style) -> str:

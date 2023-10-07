@@ -39,7 +39,10 @@ class Select:
                 select_state = self.step(select_state, live)
                 if select_state.exit or select_state.abort:
                     break
-        return select_state.index
+        if select_state.select_multiple:
+            return select_state.selected_indexes
+        else:
+            return select_state.index
 
     def step(self, select_state: SelectState, live_display: Live) -> SelectState:
         rendered = self.renderer.render(select_state)

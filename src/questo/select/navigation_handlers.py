@@ -1,3 +1,4 @@
+import copy
 import re
 from abc import ABC
 
@@ -13,52 +14,44 @@ class INavigationHandler(ABC):
 
 class DefaultNavigationHandler(INavigationHandler):
     def handle(self, keypress: Key, select_state: SelectState) -> SelectState:
-        index = select_state.index
-        exit = select_state.exit
-        abort = select_state.abort
-        filter = select_state.filter
-        filtered_indexes = get_filtered_indexes(select_state, filter)
+        s = copy.deepcopy(select_state)
+        filtered_indexes = get_filtered_indexes(s)
 
         if keypress == Keys.UP_ARROW:
-            index = decrement_index(index, filtered_indexes, 1)
+            s.index = decrement_index(s.index, filtered_indexes, 1)
         elif keypress == Keys.DOWN_ARROW:
-            index = increment_index(index, filtered_indexes, 1)
-        elif keypress == Keys.RIGHT_ARROW and select_state.pagination:
-            index = increment_index(index, filtered_indexes, select_state.page_size)
-        elif keypress == Keys.LEFT_ARROW and select_state.pagination:
-            index = increment_index(index, filtered_indexes, select_state.page_size)
+            s.index = increment_index(s.index, filtered_indexes, 1)
+        elif keypress == Keys.RIGHT_ARROW and s.pagination:
+            s.index = increment_index(s.index, filtered_indexes, s.page_size)
+        elif keypress == Keys.LEFT_ARROW and s.pagination:
+            s.index = increment_index(s.index, filtered_indexes, s.page_size)
         elif keypress == Keys.HOME:
             if filtered_indexes:
-                index = min(filtered_indexes)
+                s.index = min(filtered_indexes)
         elif keypress == Keys.END:
             if filtered_indexes:
-                index = max(filtered_indexes)
+                s.index = max(filtered_indexes)
+        elif keypress == " " and s.select_multiple:
+            if s.index in s.selected_indexes:
+                s.selected_indexes.remove(s.index)
+            else:
+                s.selected_indexes.append(s.index)
         elif keypress == Keys.ENTER:
-            exit = True
+            s.exit = True
             if not filtered_indexes:
-                index = None
+                s.index = None
         elif keypress in [Keys.ESC, Keys.CTRL_C]:
-            index = None
-            abort = True
+            s.index = None
+            s.abort = True
         elif keypress == Keys.BACKSPACE:
-            filter = filter[:-1]
-        elif keypress.is_printable:
-            filter = filter + keypress.key
-            filtered_indexes = get_filtered_indexes(select_state, filter)
-            if index not in filtered_indexes and filtered_indexes:
-                index = min(filtered_indexes)
+            s.filter = s.filter[:-1]
+        elif keypress.is_printable and not s.select_multiple:
+            s.filter = s.filter + keypress.key
+            filtered_indexes = get_filtered_indexes(s)
+            if s.index not in filtered_indexes and filtered_indexes:
+                s.index = min(filtered_indexes)
 
-        return SelectState(
-            options=select_state.options,
-            title=select_state.title,
-            index=index,
-            filter=filter,
-            pagination=select_state.pagination,
-            page_size=select_state.page_size,
-            error=select_state.error,
-            exit=exit,
-            abort=abort,
-        )
+        return s
 
 
 def decrement_index(index, filtered_indexes, step):
@@ -79,5 +72,5 @@ def increment_index(index, filtered_indexes, step):
     return None
 
 
-def get_filtered_indexes(select_state, filter):
-    return [i for i, option in enumerate(select_state.options) if re.search(filter, option, re.IGNORECASE)]
+def get_filtered_indexes(select_state: SelectState):
+    return [i for i, option in enumerate(select_state.options) if re.search(select_state.filter, option, re.IGNORECASE)]
