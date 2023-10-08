@@ -5,7 +5,7 @@ from typing import List, Tuple
 from rich.console import RenderableType
 from rich.style import Style, StyleType
 
-from questo.internals import _apply_style, parse_string_style
+from questo.internals import _apply_style, _parse_string_style
 from questo.select.state import SelectState
 
 
@@ -33,10 +33,10 @@ class DefaultRenderer(IRenderer):
         self.tick_style = tick_style
 
     def render(self, state: SelectState) -> RenderableType:
-        title_style: Style = parse_string_style(self.title_style)
-        cursor_style: Style = parse_string_style(self.cursor_style)
-        highlight_style: Style = parse_string_style(self.highlight_style)
-        tick_style: Style = parse_string_style(self.tick_style)
+        title_style: Style = _parse_string_style(self.title_style)
+        cursor_style: Style = _parse_string_style(self.cursor_style)
+        highlight_style: Style = _parse_string_style(self.highlight_style)
+        tick_style: Style = _parse_string_style(self.tick_style)
 
         filter_query = _apply_style(f"{state.filter}", "pink1 underline") if state.filter else ""
         title = _apply_style(f"{state.title} " if state.title else "", title_style)
@@ -53,8 +53,8 @@ class DefaultRenderer(IRenderer):
 
         pagination_line = ""
         if state.pagination:
-            options, current_page, total_pages = paginate(options, state.index, state.page_size)
-            pagination_line = "".join(["•" if current_page == i else "◦" for i in range(total_pages)])
+            options, current_page_index, total_pages = _paginate(options, state.index, state.page_size)
+            pagination_line = "".join(["•" if current_page_index == i else "◦" for i in range(total_pages)])
 
         if state.select_multiple:
             rendered_options = [
@@ -62,7 +62,7 @@ class DefaultRenderer(IRenderer):
             ]
         else:
             rendered_options = [
-                f'{cursor if state.index == i else " "} {render_option(option, matched.group(0), highlight_style)}'
+                f'{cursor if state.index == i else " "} {re.sub(matched.group(0), _apply_style(matched.group(0), highlight_style), option)}'
                 for i, matched, option in options
             ]
 
@@ -84,15 +84,11 @@ class DefaultRenderer(IRenderer):
         return "".join(repr)
 
 
-def paginate(options: List[Tuple[int, re.Match, str]], index: int, page_size: int) -> Tuple[List[Tuple[int, re.Match, str]], int, int]:
+def _paginate(options: List[Tuple[int, re.Match, str]], index: int, page_size: int) -> Tuple[List[Tuple[int, re.Match, str]], int, int]:
     total_pages = max((len(options) + 1) // page_size, 1)
-    current_page = min(index // page_size, total_pages)
-    return options[current_page * page_size : min((current_page + 1) * page_size, len(options))], current_page, total_pages
-
-
-def render_option(option: str, match: str, highlight_style: Style) -> str:
-    if match:
-        res = re.sub(match, _apply_style(match, highlight_style), option)
-        return res
-    else:
-        return option
+    current_page_index = min(index // page_size, total_pages - 1)
+    return (
+        options[current_page_index * page_size : min((current_page_index + 1) * page_size, len(options))],
+        current_page_index,
+        total_pages,
+    )

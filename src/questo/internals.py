@@ -16,5 +16,5 @@ def _apply_style(text: str, style: StyleType) -> str:
     return f"[{style}]{text}[/{style}]"
 
 
-def parse_string_style(style: StyleType) -> Style:
+def _parse_string_style(style: StyleType) -> Style:
     return Style.parse(style) if isinstance(style, str) else style
