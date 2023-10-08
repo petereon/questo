@@ -38,13 +38,18 @@ class DefaultRenderer(IRenderer):
         highlight_style: Style = parse_string_style(self.highlight_style)
         tick_style: Style = parse_string_style(self.tick_style)
 
-        filter = _apply_style(f"{state.filter}", "pink1 underline") if state.filter else ""
-        title = _apply_style(f"{state.title}" if state.title else "", title_style)
+        filter_query = _apply_style(f"{state.filter}", "pink1 underline") if state.filter else ""
+        title = _apply_style(f"{state.title} " if state.title else "", title_style)
         error = _apply_style(f"\n{state.error}" if state.error else "", "red")
         cursor = _apply_style(self.cursor, cursor_style)
         tick = _apply_style(self.tick, tick_style)
 
-        options = [(i, re.search(f"({state.filter})", option, re.IGNORECASE), option) for i, option in enumerate(state.options)]
+        options = list(
+            filter(
+                lambda o: o[1],
+                [(i, re.search(f"({state.filter})", option, re.IGNORECASE), option) for i, option in enumerate(state.options)],
+            ),
+        )
 
         pagination_line = ""
         if state.pagination:
@@ -59,11 +64,10 @@ class DefaultRenderer(IRenderer):
             rendered_options = [
                 f'{cursor if state.index == i else " "} {render_option(option, matched.group(0), highlight_style)}'
                 for i, matched, option in options
-                if matched
             ]
 
         repr = [
-            f"{title} {filter}\n",
+            f"{title}{filter_query}\n",
             "\n".join(rendered_options),
             f"\n{pagination_line}",
             error,
@@ -73,9 +77,9 @@ class DefaultRenderer(IRenderer):
 
 
 def paginate(options: List[Tuple[int, re.Match, str]], index: int, page_size: int) -> Tuple[List[Tuple[int, re.Match, str]], int, int]:
-    current_page = index // page_size
-    total_pages = len(options) // page_size
-    return options[current_page * page_size : min((current_page + 1) * page_size, len(options))], current_page, total_pages - 1
+    total_pages = max((len(options) + 1) // page_size, 1) - 1
+    current_page = min(index // page_size, total_pages)
+    return options[current_page * page_size : min((current_page + 1) * page_size, len(options))], current_page, total_pages
 
 
 def parse_string_style(style: StyleType) -> Style:
