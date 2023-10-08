@@ -32,19 +32,29 @@ class DefaultRenderer(IRenderer):
         prompt = _apply_style(f"{self.prompt_char} ", prompt_style)
         error = _apply_style(f"{state.error}" if state.error else "", "red")
 
-        value = state.value.split("")
-        value[state.cursor_position] = _apply_style(value[state.cursor_position], "black on white")
+        value_chars = [*state.value, " "]
+        value_chars[state.cursor_position] = _apply_style(value_chars[state.cursor_position], "black on white")
+        value = "".join(value_chars)
 
         repr = [
-            f"{title}\n",
             f"{prompt} {value}\n",
-            f"{error}\n",
         ]
 
-        options = state.completion.options
-        options[state.completion.index] = _apply_style(options[state.completion.index], "black on white")
+        if state.title:
+            repr = [
+                f"{title}\n",
+                *repr,
+            ]
 
-        if state.completion.options:
+        if error:
+            repr = [
+                *repr,
+                f"{error}\n",
+            ]
+
+        options = state.completion.options
+        if options:
+            options[state.completion.index] = _apply_style(options[state.completion.index], "black on white")
             repr = [*repr, " ".join(options)]
 
         return "".join(repr)

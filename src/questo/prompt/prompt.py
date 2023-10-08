@@ -24,7 +24,7 @@ class Prompt:
         navigation_handler: INavigationHandler = DefaultNavigationHandler(),
         renderer: IRenderer = DefaultRenderer(),
         validator: Callable[[PromptState], PromptState] = lambda state: state,
-        completion_handler: Callable[[PromptState], PromptState] = lambda value: [],
+        completion_handler: Callable[[PromptState], PromptState] = lambda value: value,
         console: Optional[Console] = None,
     ) -> None:
         self.navigation_handler = navigation_handler
@@ -42,10 +42,7 @@ class Prompt:
                 prompt_state = self.step(prompt_state, live)
                 if prompt_state.exit or prompt_state.abort:
                     break
-        if prompt_state.select_multiple:
-            return prompt_state.selected_indexes
-        else:
-            return prompt_state.index
+        return prompt_state.value
 
     def step(self, prompt_state: PromptState, live_display: Live) -> PromptState:
         rendered = self.renderer.render(prompt_state)
@@ -53,5 +50,6 @@ class Prompt:
         live_display.refresh()
         keypress = get_key()
         prompt_state.update(self.navigation_handler.handle(keypress, prompt_state))
+        prompt_state.update(self.completion_handler(prompt_state))
         prompt_state.update(self.validator(prompt_state))
         return prompt_state

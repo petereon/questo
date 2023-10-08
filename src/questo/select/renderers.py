@@ -67,11 +67,19 @@ class DefaultRenderer(IRenderer):
             ]
 
         repr = [
-            f"{title}{filter_query}\n",
             "\n".join(rendered_options),
             f"\n{pagination_line}",
             error,
         ]
+
+        if state.title:
+            repr = [f"{title}{filter_query}\n", *repr]
+        else:
+            repr = [*repr, f"{filter_query}\n"]
+
+        if error:
+            repr = [*repr, f"\n{error}"]
+
         rendered_options.clear()
         return "".join(repr)
 

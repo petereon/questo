@@ -31,10 +31,6 @@ class DefaultNavigationHandler(INavigationHandler):
             s.completion.in_completion_ctx = False
         elif keypress == Keys.ENTER:
             s.exit = True
-        elif keypress == Keys.BACKSPACE:
-            if s.cursor_position > 0:
-                s.cursor_position -= 1
-                del s.value[s.cursor_position]
         elif keypress == Keys.LEFT_ARROW:
             if s.cursor_position > 0:
                 s.cursor_position -= 1
@@ -47,12 +43,22 @@ class DefaultNavigationHandler(INavigationHandler):
             s.cursor_position = len(s.value)
         elif keypress == Keys.DELETE:
             if s.cursor_position < len(s.value):
-                del s.value[s.cursor_position]
+                value_chars = [*s.value]
+                del value_chars[s.cursor_position]
+                s.value = "".join(value_chars)
+        elif keypress == Keys.BACKSPACE:
+            if s.cursor_position > 0:
+                s.cursor_position -= 1
+                value_chars = [*s.value]
+                del value_chars[s.cursor_position]
+                s.value = "".join(value_chars)
         elif keypress == Keys.ESC:
             s.abort = True
         elif keypress:
             if not (keypress == Keys.TAB and s.completion.in_completion_ctx):
-                s.value.insert(s.cursor_position, str(keypress))
                 s.cursor_position += 1
+                value_chars = [*s.value]
+                value_chars.insert(s.cursor_position, str(keypress))
+                s.value = "".join(value_chars)
 
         return s
