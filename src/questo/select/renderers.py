@@ -54,7 +54,7 @@ class DefaultRenderer(IRenderer):
         pagination_line = ""
         if state.pagination:
             options, current_page, total_pages = paginate(options, state.index, state.page_size)
-            pagination_line = "".join(["•" if current_page == i else "◦" for i in range(total_pages + 1)])
+            pagination_line = "".join(["•" if current_page == i else "◦" for i in range(total_pages)])
 
         if state.select_multiple:
             rendered_options = [
@@ -77,7 +77,7 @@ class DefaultRenderer(IRenderer):
 
 
 def paginate(options: List[Tuple[int, re.Match, str]], index: int, page_size: int) -> Tuple[List[Tuple[int, re.Match, str]], int, int]:
-    total_pages = max((len(options) + 1) // page_size, 1) - 1
+    total_pages = max((len(options) + 1) // page_size, 1)
     current_page = min(index // page_size, total_pages)
     return options[current_page * page_size : min((current_page + 1) * page_size, len(options))], current_page, total_pages
 
