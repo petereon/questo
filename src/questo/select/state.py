@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 @dataclass
 class SelectState:
-    """State of a select question."""
+    """State of a select element."""
 
     options: List[str]
     title: Optional[str] = None

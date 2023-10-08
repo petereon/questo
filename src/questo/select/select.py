@@ -11,7 +11,7 @@ from questo.select.state import SelectState
 
 
 class Select:
-    """A select question."""
+    """A select element."""
 
     navigation_handler: INavigationHandler
     renderer: IRenderer

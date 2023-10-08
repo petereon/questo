@@ -117,6 +117,8 @@ line-length = 140
 
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
+ignore-init-module-imports = true
+
 target-version = "py38"
 
 [tool.ruff.mccabe]

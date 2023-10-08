@@ -5,7 +5,7 @@ from typing import List, Tuple
 from rich.console import RenderableType
 from rich.style import Style, StyleType
 
-from questo.internals import _apply_style
+from questo.internals import _apply_style, parse_string_style
 from questo.select.state import SelectState
 
 
@@ -80,10 +80,6 @@ def paginate(options: List[Tuple[int, re.Match, str]], index: int, page_size: in
     total_pages = max((len(options) + 1) // page_size, 1)
     current_page = min(index // page_size, total_pages)
     return options[current_page * page_size : min((current_page + 1) * page_size, len(options))], current_page, total_pages
-
-
-def parse_string_style(style: StyleType) -> Style:
-    return Style.parse(style) if isinstance(style, str) else style
 
 
 def render_option(option: str, match: str, highlight_style: Style) -> str:
