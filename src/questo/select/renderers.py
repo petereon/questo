@@ -1,5 +1,6 @@
 import re
 from abc import ABC, abstractmethod
+from typing import List, Tuple
 
 from rich.console import RenderableType
 from rich.style import Style, StyleType
@@ -32,7 +33,6 @@ class DefaultRenderer(IRenderer):
         self.tick_style = tick_style
 
     def render(self, state: SelectState) -> RenderableType:
-        # TODO: add support for pagination
         title_style: Style = parse_string_style(self.title_style)
         cursor_style: Style = parse_string_style(self.cursor_style)
         highlight_style: Style = parse_string_style(self.highlight_style)
@@ -44,28 +44,38 @@ class DefaultRenderer(IRenderer):
         cursor = _apply_style(self.cursor, cursor_style)
         tick = _apply_style(self.tick, tick_style)
 
-        options = state.options
+        options = [(i, re.search(f"({state.filter})", option, re.IGNORECASE), option) for i, option in enumerate(state.options)]
 
-        rendered_options = []
+        pagination_line = ""
+        if state.pagination:
+            options, current_page, total_pages = paginate(options, state.index, state.page_size)
+            pagination_line = "".join(["•" if current_page == i else "◦" for i in range(total_pages + 1)])
+
         if state.select_multiple:
-            for i, option in enumerate(options):
-                rendered_options.append(f'{cursor if state.index == i else " "} {tick if i in state.selected_indexes else " "} {option}')
-
+            rendered_options = [
+                f'{cursor if state.index == i else " "} {tick if i in state.selected_indexes else " "} {option}' for i, _, option in options
+            ]
         else:
-            for i, option in enumerate(options):
-                matched = re.search(f"({state.filter})", option, re.IGNORECASE)
-                if matched:
-                    rendered_options.append(
-                        f'{cursor if state.index == i else " "} {render_option(option, matched.group(0), highlight_style)}',
-                    )
+            rendered_options = [
+                f'{cursor if state.index == i else " "} {render_option(option, matched.group(0), highlight_style)}'
+                for i, matched, option in options
+                if matched
+            ]
 
         repr = [
             f"{title} {filter}\n",
             "\n".join(rendered_options),
+            f"\n{pagination_line}",
             error,
         ]
         rendered_options.clear()
         return "".join(repr)
+
+
+def paginate(options: List[Tuple[int, re.Match, str]], index: int, page_size: int) -> Tuple[List[Tuple[int, re.Match, str]], int, int]:
+    current_page = index // page_size
+    total_pages = len(options) // page_size
+    return options[current_page * page_size : min((current_page + 1) * page_size, len(options))], current_page, total_pages - 1
 
 
 def parse_string_style(style: StyleType) -> Style:

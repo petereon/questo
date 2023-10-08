@@ -24,7 +24,7 @@ class DefaultNavigationHandler(INavigationHandler):
         elif keypress == Keys.RIGHT_ARROW and s.pagination:
             s.index = increment_index(s.index, filtered_indexes, s.page_size)
         elif keypress == Keys.LEFT_ARROW and s.pagination:
-            s.index = increment_index(s.index, filtered_indexes, s.page_size)
+            s.index = decrement_index(s.index, filtered_indexes, s.page_size)
         elif keypress == Keys.HOME:
             if filtered_indexes:
                 s.index = min(filtered_indexes)
