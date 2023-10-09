@@ -1,5 +1,6 @@
 import copy
 from abc import ABC
+from typing import Tuple
 
 from yakh.key import Key, Keys
 
@@ -17,10 +18,10 @@ class DefaultNavigationHandler(INavigationHandler):
 
         if keypress == Keys.TAB:
             if s.completion.in_completion_ctx and s.completion.options:
-                s.completion.index = (s.completion.index + 1) % len(s.completion.options)
-                s.value = s.completion.options[s.completion.index]
+                s.completion.index, s.cursor_position, s.value = completions_options_step(1, s)
             else:
                 s.completion.in_completion_ctx = True
+                s.completion.index = 0
         else:
             s.completion.in_completion_ctx = False
             s.completion.options = []
@@ -28,7 +29,6 @@ class DefaultNavigationHandler(INavigationHandler):
 
         if keypress == Keys.CTRL_C:
             s.value = None
-            s.completion.in_completion_ctx = False
         elif keypress == Keys.ENTER:
             s.exit = True
         elif keypress == Keys.LEFT_ARROW:
@@ -62,3 +62,10 @@ class DefaultNavigationHandler(INavigationHandler):
                 s.value = "".join(value_chars)
 
         return s
+
+
+def completions_options_step(step: int, state: PromptState) -> Tuple[int, int, str]:
+    index = (state.completion.index + step) % len(state.completion.options)
+    value = state.completion.options[index]
+    cursor_positon = len(value)
+    return index, cursor_positon, value

@@ -53,7 +53,7 @@ class DefaultRenderer(IRenderer):
             ]
 
         options = state.completion.options
-        if options:
+        if options and state.completion.in_completion_ctx:
             options[state.completion.index] = _apply_style(options[state.completion.index], "black on white")
             repr = [*repr, " ".join(options)]
 

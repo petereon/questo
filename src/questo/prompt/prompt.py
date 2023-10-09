@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Union
+from typing import Callable, List, Optional, Union
 
 from rich.console import Console
 from rich.live import Live
@@ -24,7 +24,7 @@ class Prompt:
         navigation_handler: INavigationHandler = DefaultNavigationHandler(),
         renderer: IRenderer = DefaultRenderer(),
         validator: Callable[[PromptState], PromptState] = lambda state: state,
-        completion_handler: Callable[[PromptState], PromptState] = lambda value: value,
+        completion_handler: Callable[[str], List[str]] = lambda _: [],
         console: Optional[Console] = None,
     ) -> None:
         self.navigation_handler = navigation_handler
@@ -49,7 +49,7 @@ class Prompt:
         live_display.update(renderable=rendered)
         live_display.refresh()
         keypress = get_key()
-        prompt_state.update(self.navigation_handler.handle(keypress, prompt_state))
-        prompt_state.update(self.completion_handler(prompt_state))
-        prompt_state.update(self.validator(prompt_state))
+        prompt_state = self.navigation_handler.handle(keypress, prompt_state)
+        prompt_state.completion.options = self.completion_handler(prompt_state.value)
+        prompt_state = self.validator(prompt_state)
         return prompt_state
