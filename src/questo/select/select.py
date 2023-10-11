@@ -20,6 +20,8 @@ class Select:
     console: Console
     state: Union[SelectState, None] = None
 
+    # TODO: rework select to use context manager
+
     def __init__(
         self,
         navigation_handler: INavigationHandler = DefaultNavigationHandler(),
