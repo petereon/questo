@@ -11,6 +11,7 @@ from questo.prompt.state import PromptState
 
 _NO_STATE_ERROR = RuntimeError("No state provided. Please assing a state to the Prompt.state property.")
 
+
 class Prompt:
     """A prompt element."""
 

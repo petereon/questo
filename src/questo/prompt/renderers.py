@@ -1,4 +1,3 @@
-
 from rich.console import RenderableType
 from rich.style import Style, StyleType
 
@@ -18,7 +17,8 @@ class DefaultRenderer:
         self.prompt_style = prompt_style
 
     def render(
-        self, state: PromptState, title_style: StyleType = "bold", prompt_char: str = ">", prompt_style: StyleType = "cyan1 bold"
+        self,
+        state: PromptState,
     ) -> RenderableType:
         title_style: Style = _parse_string_style(self.title_style)
         prompt_style: Style = _parse_string_style(self.prompt_style)
