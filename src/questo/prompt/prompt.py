@@ -1,55 +1,59 @@
-from typing import Callable, List, Optional, Union
+import copy
+from contextlib import contextmanager
+from typing import Callable, Optional, Union
 
 from rich.console import Console
 from rich.live import Live
-from yakh import get_key
 
 from questo.internals import _cursor_hidden
-from questo.prompt.navigation_handlers import DefaultNavigationHandler, INavigationHandler
-from questo.prompt.renderers import DefaultRenderer, IRenderer
+from questo.prompt.renderers import DefaultRenderer
 from questo.prompt.state import PromptState
 
+_NO_STATE_ERROR = RuntimeError("No state provided. Please assing a state to the Prompt.state property.")
 
 class Prompt:
     """A prompt element."""
 
-    navigation_handler: INavigationHandler
-    renderer: IRenderer
-    validator: Callable[[PromptState], PromptState]
-    completion_handler: Callable[[PromptState], PromptState]
-    console: Console
+    rendering_handler: Callable[[PromptState], str]
+    _state: Union[PromptState, None] = None
+    _live: Union[Live, None] = None
 
     def __init__(
         self,
-        navigation_handler: INavigationHandler = DefaultNavigationHandler(),
-        renderer: IRenderer = DefaultRenderer(),
-        validator: Callable[[PromptState], PromptState] = lambda state: state,
-        completion_handler: Callable[[str], List[str]] = lambda _: [],
+        render_handler: Callable[[PromptState], str] = DefaultRenderer().render,
         console: Optional[Console] = None,
     ) -> None:
-        self.navigation_handler = navigation_handler
-        self.renderer = renderer
-        self.validator = validator
-        self.completion_handler = completion_handler
+        self.rendering_handler = render_handler
         if console is None:
             self.console = Console()
         else:
             self.console = console
 
-    def run(self, prompt_state: PromptState) -> Union[int, None]:
-        with _cursor_hidden(self.console), Live("", console=self.console, auto_refresh=False, transient=True) as live:
-            while True:
-                prompt_state = self.step(prompt_state, live)
-                if prompt_state.exit or prompt_state.abort:
-                    break
-        return prompt_state.value
+    @contextmanager
+    def diplayed(self, console: Optional[Console] = None) -> None:
+        if self._state is None:
+            raise _NO_STATE_ERROR
+        if console is None:
+            console = Console()
+        with _cursor_hidden(self.console), Live("", console=console, auto_refresh=False, transient=True) as live:
+            self._live = live
+            self.state = self._state
+            yield self
 
-    def step(self, prompt_state: PromptState, live_display: Live) -> PromptState:
-        rendered = self.renderer.render(prompt_state)
-        live_display.update(renderable=rendered)
-        live_display.refresh()
-        keypress = get_key()
-        prompt_state = self.navigation_handler.handle(keypress, prompt_state)
-        prompt_state.completion.options = self.completion_handler(prompt_state.value)
-        prompt_state = self.validator(prompt_state)
-        return prompt_state
+    @property
+    def state(self) -> PromptState:
+        return copy.deepcopy(self._state)
+
+    @state.setter
+    def state(self, state: PromptState) -> None:
+        self._state = copy.deepcopy(state)
+        if self._live is not None:
+            rendered = self.rendering_handler(self._state)
+            self._live.update(renderable=rendered)
+            self._live.refresh()
+
+    @property
+    def result(self) -> str:
+        if self._state is None:
+            raise _NO_STATE_ERROR
+        return copy.copy(self._state.value)

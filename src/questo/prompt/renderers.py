@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 
 from rich.console import RenderableType
 from rich.style import Style, StyleType
@@ -7,13 +6,7 @@ from questo.internals import _apply_style, _parse_string_style
 from questo.prompt.state import PromptState
 
 
-class IRenderer(ABC):
-    @abstractmethod
-    def render(self, state: PromptState) -> RenderableType:
-        ...
-
-
-class DefaultRenderer(IRenderer):
+class DefaultRenderer:
     def __init__(
         self,
         title_style: StyleType = "bold",
@@ -24,12 +17,14 @@ class DefaultRenderer(IRenderer):
         self.prompt_char = prompt_char
         self.prompt_style = prompt_style
 
-    def render(self, state: PromptState) -> RenderableType:
+    def render(
+        self, state: PromptState, title_style: StyleType = "bold", prompt_char: str = ">", prompt_style: StyleType = "cyan1 bold"
+    ) -> RenderableType:
         title_style: Style = _parse_string_style(self.title_style)
         prompt_style: Style = _parse_string_style(self.prompt_style)
 
         title = _apply_style(f"{state.title} " if state.title else "", title_style)
-        prompt = _apply_style(f"{self.prompt_char} ", prompt_style)
+        prompt = _apply_style(f"{self.prompt_char}", prompt_style)
         error = _apply_style(f"{state.error}" if state.error else "", "red")
 
         value_chars = [*state.value, " "]

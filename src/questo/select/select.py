@@ -1,4 +1,5 @@
-from typing import Callable, Optional, Union
+import copy
+from typing import Callable, Optional, Tuple, Union
 
 from rich.console import Console
 from rich.live import Live
@@ -15,14 +16,15 @@ class Select:
 
     navigation_handler: INavigationHandler
     renderer: IRenderer
-    validator: Callable[[SelectState], SelectState]
+    validator: Callable[[SelectState], Tuple[bool, Optional[str]]]
     console: Console
+    state: Union[SelectState, None] = None
 
     def __init__(
         self,
         navigation_handler: INavigationHandler = DefaultNavigationHandler(),
         renderer: IRenderer = DefaultRenderer(),
-        validator: Callable[[SelectState], SelectState] = lambda state: state,
+        validator: Callable[[SelectState], Tuple[bool, Optional[str]]] = lambda state: state,
         console: Optional[Console] = None,
     ) -> None:
         self.navigation_handler = navigation_handler
@@ -33,22 +35,29 @@ class Select:
         else:
             self.console = console
 
-    def run(self, select_state: SelectState) -> Union[int, None]:
+    def use(self, state: SelectState) -> None:
+        self.state = copy.deepcopy(state)
+
+    def run(self) -> Union[int, None]:
         with _cursor_hidden(self.console), Live("", console=self.console, auto_refresh=False, transient=True) as live:
             while True:
-                select_state = self.step(select_state, live)
-                if select_state.exit or select_state.abort:
+                self.state = self.step(live)
+                if self.state.exit or self.state.abort:
                     break
-        if select_state.select_multiple:
-            return select_state.selected_indexes
+        if self.state.select_multiple:
+            return self.state.selected_indexes
         else:
-            return select_state.index
+            return self.state.index
 
-    def step(self, select_state: SelectState, live_display: Live) -> SelectState:
-        rendered = self.renderer.render(select_state)
+    def step(self, live_display: Live) -> SelectState:
+        if not self.state:
+            raise RuntimeError("No state provided. Use Select.use() to provide a state.")
+        rendered = self.renderer.render(self.state)
         live_display.update(renderable=rendered)
         live_display.refresh()
         keypress = get_key()
-        select_state.update(self.navigation_handler.handle(keypress, select_state))
-        select_state.update(self.validator(select_state))
-        return select_state
+        self.state = self.navigation_handler.handle(keypress, self.state)
+        valid, err_str = self.validator(self.state)
+        if not valid:
+            self.state.error = err_str
+        return self.state
