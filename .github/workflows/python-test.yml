@@ -34,7 +34,7 @@ jobs:
         poetry install
     - name: Build and install the library
       run: |
-        poe build
+        poetry build
     - name: Test with pytest
       run: |
         export PYTHONPATH=$(pwd)/src
