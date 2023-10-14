@@ -5,11 +5,9 @@ from typing import Callable, Optional, Union
 from rich.console import Console
 from rich.live import Live
 
-from questo.internals import _cursor_hidden
+from questo.internals import _NO_STATE_ERROR, _cursor_hidden
 from questo.prompt.renderers import DefaultRenderer
 from questo.prompt.state import PromptState
-
-_NO_STATE_ERROR = RuntimeError("No state provided. Please assing a state to the Prompt.state property.")
 
 
 class Prompt:
@@ -34,12 +32,14 @@ class Prompt:
     def diplayed(self, console: Optional[Console] = None) -> None:
         if self._state is None:
             raise _NO_STATE_ERROR
-        if console is None:
-            console = Console()
-        with _cursor_hidden(self.console), Live("", console=console, auto_refresh=False, transient=True) as live:
+        if console is not None:
+            self.console = console
+        if self.console is None:
+            self.console = Console()
+        with _cursor_hidden(self.console), Live("", console=self.console, auto_refresh=False, transient=True) as live:
             self._live = live
             self.state = self._state
-            yield self
+            yield
 
     @property
     def state(self) -> PromptState:

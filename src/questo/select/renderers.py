@@ -1,5 +1,4 @@
 import re
-from abc import ABC, abstractmethod
 from typing import List, Tuple
 
 from rich.console import RenderableType
@@ -9,13 +8,7 @@ from questo.internals import _apply_style, _parse_string_style
 from questo.select.state import SelectState
 
 
-class IRenderer(ABC):
-    @abstractmethod
-    def render(self, state: SelectState) -> RenderableType:
-        ...
-
-
-class DefaultRenderer(IRenderer):
+class DefaultRenderer:
     def __init__(
         self,
         title_style: StyleType = "bold",

@@ -1,65 +1,61 @@
 import copy
-from typing import Callable, Optional, Tuple, Union
+from contextlib import contextmanager
+from typing import Callable, Optional, Union
 
 from rich.console import Console
 from rich.live import Live
-from yakh import get_key
 
-from questo.internals import _cursor_hidden
-from questo.select.navigation_handlers import DefaultNavigationHandler, INavigationHandler
-from questo.select.renderers import DefaultRenderer, IRenderer
+from questo.internals import _NO_STATE_ERROR, _cursor_hidden
+from questo.select.renderers import DefaultRenderer
 from questo.select.state import SelectState
 
 
 class Select:
     """A select element."""
 
-    navigation_handler: INavigationHandler
-    renderer: IRenderer
-    validator: Callable[[SelectState], Tuple[bool, Optional[str]]]
+    rendering_handler: Callable[[SelectState], str]
     console: Console
-    state: Union[SelectState, None] = None
-
-    # TODO: rework select to use context manager
+    _state: Union[SelectState, None] = None
+    _live: Union[Live, None] = None
 
     def __init__(
         self,
-        navigation_handler: INavigationHandler = DefaultNavigationHandler(),
-        renderer: IRenderer = DefaultRenderer(),
-        validator: Callable[[SelectState], Tuple[bool, Optional[str]]] = lambda state: state,
+        rendering_handler: Callable[[SelectState], str] = DefaultRenderer().render,
         console: Optional[Console] = None,
     ) -> None:
-        self.navigation_handler = navigation_handler
-        self.renderer = renderer
-        self.validator = validator
+        self.rendering_handler = rendering_handler
         if console is None:
             self.console = Console()
         else:
             self.console = console
 
-    def use(self, state: SelectState) -> None:
-        self.state = copy.deepcopy(state)
-
-    def run(self) -> Union[int, None]:
+    @contextmanager
+    def diplayed(self, console: Optional[Console] = None) -> None:
+        if self._state is None:
+            raise _NO_STATE_ERROR
+        if console is not None:
+            self.console = console
+        if self.console is None:
+            self.console = Console()
         with _cursor_hidden(self.console), Live("", console=self.console, auto_refresh=False, transient=True) as live:
-            while True:
-                self.state = self.step(live)
-                if self.state.exit or self.state.abort:
-                    break
-        if self.state.select_multiple:
-            return self.state.selected_indexes
-        else:
-            return self.state.index
+            self._live = live
+            self.state = self._state
+            yield
 
-    def step(self, live_display: Live) -> SelectState:
-        if not self.state:
-            raise RuntimeError("No state provided. Use Select.use() to provide a state.")
-        rendered = self.renderer.render(self.state)
-        live_display.update(renderable=rendered)
-        live_display.refresh()
-        keypress = get_key()
-        self.state = self.navigation_handler.handle(keypress, self.state)
-        valid, err_str = self.validator(self.state)
-        if not valid:
-            self.state.error = err_str
-        return self.state
+    @property
+    def state(self) -> SelectState:
+        return copy.deepcopy(self._state)
+
+    @state.setter
+    def state(self, state: SelectState) -> None:
+        self._state = copy.deepcopy(state)
+        if self._live is not None:
+            rendered = self.rendering_handler(self._state)
+            self._live.update(renderable=rendered)
+            self._live.refresh()
+
+    @property
+    def result(self) -> str:
+        if self._state is None:
+            raise _NO_STATE_ERROR
+        return copy.copy(self._state.index)
