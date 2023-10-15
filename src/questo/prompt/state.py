@@ -20,12 +20,3 @@ class PromptState:
     error: Optional[str] = None
     exit: bool = False
     abort: bool = False
-
-    def update(self, new_state: 'PromptState') -> None:
-        self.value = new_state.value
-        self.title = new_state.title
-        self.cursor_position = new_state.cursor_position
-        self.completion = new_state.completion
-        self.exit = new_state.exit
-        self.abort = new_state.abort
-        self.error = new_state.error
