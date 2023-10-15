@@ -24,7 +24,7 @@ def key_handler(select_state: SelectState, keypress: Key) -> SelectState:
     elif keypress == Keys.END:
         if filtered_indexes:
             s.index = max(filtered_indexes)
-    elif keypress == " " and s.select_multiple:
+    elif keypress == ' ' and s.select_multiple:
         if s.index in s.selected_indexes:
             s.selected_indexes.remove(s.index)
         else:

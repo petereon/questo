@@ -13,7 +13,7 @@ class CompletionState:
 class PromptState:
     """State of a prompt element."""
 
-    value: str = ""
+    value: str = ''
     title: Optional[str] = None
     cursor_position: int = 0
     completion: CompletionState = field(default_factory=CompletionState)
@@ -21,7 +21,7 @@ class PromptState:
     exit: bool = False
     abort: bool = False
 
-    def update(self, new_state: "PromptState") -> None:
+    def update(self, new_state: 'PromptState') -> None:
         self.value = new_state.value
         self.title = new_state.title
         self.cursor_position = new_state.cursor_position

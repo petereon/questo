@@ -6,7 +6,7 @@ from yakh.key import Key, Keys
 from questo.prompt.state import PromptState
 
 
-def prompt_key_handler(prompt_state: PromptState, keypress: Key) -> PromptState:
+def key_handler(prompt_state: PromptState, keypress: Key) -> PromptState:
     s = copy.deepcopy(prompt_state)
 
     if keypress == Keys.TAB:
@@ -38,13 +38,13 @@ def prompt_key_handler(prompt_state: PromptState, keypress: Key) -> PromptState:
         if s.cursor_position < len(s.value):
             value_chars = [*s.value]
             del value_chars[s.cursor_position]
-            s.value = "".join(value_chars)
+            s.value = ''.join(value_chars)
     elif keypress == Keys.BACKSPACE:
         if s.cursor_position > 0:
             s.cursor_position -= 1
             value_chars = [*s.value]
             del value_chars[s.cursor_position]
-            s.value = "".join(value_chars)
+            s.value = ''.join(value_chars)
     elif keypress == Keys.ESC:
         s.abort = True
     elif keypress:
@@ -52,7 +52,7 @@ def prompt_key_handler(prompt_state: PromptState, keypress: Key) -> PromptState:
             s.cursor_position += 1
             value_chars = [*s.value]
             value_chars.insert(s.cursor_position, str(keypress))
-            s.value = "".join(value_chars)
+            s.value = ''.join(value_chars)
 
     return s
 

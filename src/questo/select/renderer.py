@@ -11,12 +11,12 @@ from questo.select.state import SelectState
 class DefaultRenderer:
     def __init__(
         self,
-        title_style: StyleType = "bold",
-        cursor: str = ">",
-        cursor_style: StyleType = "cyan1 bold",
-        highlight_style: StyleType = "pink1 bold",
-        tick: str = "✓",
-        tick_style: StyleType = "green",
+        title_style: StyleType = 'bold',
+        cursor: str = '>',
+        cursor_style: StyleType = 'cyan1 bold',
+        highlight_style: StyleType = 'pink1 bold',
+        tick: str = '✓',
+        tick_style: StyleType = 'green',
     ) -> None:
         self.title_style = title_style
         self.cursor = cursor
@@ -31,23 +31,23 @@ class DefaultRenderer:
         highlight_style: Style = _parse_string_style(self.highlight_style)
         tick_style: Style = _parse_string_style(self.tick_style)
 
-        filter_query = _apply_style(f"{state.filter}", "pink1 underline") if state.filter else ""
-        title = _apply_style(f"{state.title} " if state.title else "", title_style)
-        error = _apply_style(f"\n{state.error}" if state.error else "", "red")
+        filter_query = _apply_style(f'{state.filter}', 'pink1 underline') if state.filter else ''
+        title = _apply_style(f'{state.title} ' if state.title else '', title_style)
+        error = _apply_style(f'\n{state.error}' if state.error else '', 'red')
         cursor = _apply_style(self.cursor, cursor_style)
         tick = _apply_style(self.tick, tick_style)
 
         options = list(
             filter(
                 lambda o: o[1],
-                [(i, re.search(f"({state.filter})", option, re.IGNORECASE), option) for i, option in enumerate(state.options)],
+                [(i, re.search(f'({state.filter})', option, re.IGNORECASE), option) for i, option in enumerate(state.options)],
             ),
         )
 
-        pagination_line = ""
+        pagination_line = ''
         if state.pagination:
             options, current_page_index, total_pages = _paginate(options, state.index, state.page_size)
-            pagination_line = "".join(["•" if current_page_index == i else "◦" for i in range(total_pages)])
+            pagination_line = ''.join(['•' if current_page_index == i else '◦' for i in range(total_pages)])
 
         if state.select_multiple:
             rendered_options = [
@@ -60,21 +60,21 @@ class DefaultRenderer:
             ]
 
         repr = [
-            "\n".join(rendered_options),
-            f"\n{pagination_line}",
+            '\n'.join(rendered_options),
+            f'\n{pagination_line}',
             error,
         ]
 
         if state.title:
-            repr = [f"{title}{filter_query}\n", *repr]
+            repr = [f'{title}{filter_query}\n', *repr]
         else:
-            repr = [*repr, f"{filter_query}\n"]
+            repr = [*repr, f'{filter_query}\n']
 
         if error:
-            repr = [*repr, f"\n{error}"]
+            repr = [*repr, f'\n{error}']
 
         rendered_options.clear()
-        return "".join(repr)
+        return ''.join(repr)
 
 
 def _paginate(options: List[Tuple[int, re.Match, str]], index: int, page_size: int) -> Tuple[List[Tuple[int, re.Match, str]], int, int]:

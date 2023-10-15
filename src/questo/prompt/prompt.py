@@ -1,60 +1,26 @@
-import copy
-from contextlib import contextmanager
 from typing import Callable, Optional, Union
 
 from rich.console import Console
-from rich.live import Live
 
-from questo.internals import _NO_STATE_ERROR, _cursor_hidden
-from questo.prompt.renderers import DefaultRenderer
+from questo.abstract.abstract_element import GenericElement
+from questo.internals import _NO_STATE_ERROR
+from questo.prompt.renderer import DefaultRenderer
 from questo.prompt.state import PromptState
 
 
-class Prompt:
+class Prompt(GenericElement):
     """A prompt element."""
-
-    rendering_handler: Callable[[PromptState], str]
-    _state: Union[PromptState, None] = None
-    _live: Union[Live, None] = None
 
     def __init__(
         self,
-        render_handler: Callable[[PromptState], str] = DefaultRenderer().render,
+        state: Union[PromptState, None] = None,
+        renderer: Callable[[PromptState], str] = DefaultRenderer().render,
         console: Optional[Console] = None,
     ) -> None:
-        self.rendering_handler = render_handler
-        if console is None:
-            self.console = Console()
-        else:
-            self.console = console
-
-    @contextmanager
-    def diplayed(self, console: Optional[Console] = None) -> None:
-        if self._state is None:
-            raise _NO_STATE_ERROR
-        if console is not None:
-            self.console = console
-        if self.console is None:
-            self.console = Console()
-        with _cursor_hidden(self.console), Live("", console=self.console, auto_refresh=False, transient=True) as live:
-            self._live = live
-            self.state = self._state
-            yield
-
-    @property
-    def state(self) -> PromptState:
-        return copy.deepcopy(self._state)
-
-    @state.setter
-    def state(self, state: PromptState) -> None:
-        self._state = copy.deepcopy(state)
-        if self._live is not None:
-            rendered = self.rendering_handler(self._state)
-            self._live.update(renderable=rendered)
-            self._live.refresh()
+        super().__init__(state=state, renderer=renderer, console=console)
 
     @property
     def result(self) -> str:
         if self._state is None:
             raise _NO_STATE_ERROR
-        return copy.copy(self._state.value)
+        return self._state.value
