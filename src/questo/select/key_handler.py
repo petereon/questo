@@ -10,9 +10,9 @@ def key_handler(select_state: SelectState, keypress: Key) -> SelectState:
     s = copy.deepcopy(select_state)
     filtered_indexes = get_filtered_indexes(s)
 
-    if keypress == Keys.UP_ARROW:
+    if keypress == Keys.UP_ARROW and filtered_indexes:
         s.index = decrement_index(s.index, filtered_indexes, 1)
-    elif keypress == Keys.DOWN_ARROW:
+    elif keypress == Keys.DOWN_ARROW and filtered_indexes:
         s.index = increment_index(s.index, filtered_indexes, 1)
     elif keypress == Keys.RIGHT_ARROW and s.pagination:
         s.index = increment_index(s.index, filtered_indexes, s.page_size)
@@ -33,10 +33,13 @@ def key_handler(select_state: SelectState, keypress: Key) -> SelectState:
         s.exit = True
         if not filtered_indexes:
             s.index = None
-    elif keypress in [Keys.ESC, Keys.CTRL_C]:
+    elif keypress == Keys.ESC:
+        s.index = None
+        s.exit = True
+    elif keypress == Keys.CTRL_C:
         s.index = None
         s.abort = True
-    elif keypress == Keys.BACKSPACE:
+    elif keypress == Keys.BACKSPACE and not s.select_multiple:
         s.filter = s.filter[:-1]
     elif keypress.is_printable and not s.select_multiple:
         s.filter = s.filter + keypress.key
@@ -48,21 +51,17 @@ def key_handler(select_state: SelectState, keypress: Key) -> SelectState:
 
 
 def decrement_index(index, filtered_indexes, step):
-    if filtered_indexes:
-        try:
-            return max([i for i in filtered_indexes if i <= index - step])
-        except ValueError:
-            return max(filtered_indexes)
-    return None
+    try:
+        return max([i for i in filtered_indexes if i <= index - step])
+    except ValueError:
+        return max(filtered_indexes)
 
 
 def increment_index(index, filtered_indexes, step):
-    if filtered_indexes:
-        try:
-            return min([i for i in filtered_indexes if i >= index + step])
-        except ValueError:
-            return min(filtered_indexes)
-    return None
+    try:
+        return min([i for i in filtered_indexes if i >= index + step])
+    except ValueError:
+        return min(filtered_indexes)
 
 
 def get_filtered_indexes(select_state: SelectState):

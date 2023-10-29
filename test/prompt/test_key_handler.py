@@ -6,7 +6,9 @@ from yakh.key import Keys
 @fixture
 def prompt_state():
     return prompt.PromptState(
-        value='test', cursor_position=0, completion=prompt.CompletionState(options=['test1', 'test2'], index=None, in_completion_ctx=False),
+        value='test',
+        cursor_position=0,
+        completion=prompt.CompletionState(options=['test1', 'test2'], index=None, in_completion_ctx=False),
     )
 
 

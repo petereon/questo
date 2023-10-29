@@ -14,12 +14,13 @@ packages = [{ include = "questo", from = "src" }]
 verbosity = -1
 
 [tool.poe.tasks]
-"black" = { shell = "poetry run black ./src/" }
+"black" = { shell = "poetry run black ./src/ && poetry run black ./test/" }
 "mypy" = { shell = "poetry run mypy ./src/" }
-"ruff" = { shell = 'poetry run ruff ./src/ --fix' }
+"ruff" = { shell = 'poetry run ruff ./src/ --fix && poetry run ruff ./test/ --fix' }
+"unify" = { shell = "poetry run unify ./src -r -i && poetry run unify ./test -r -i" }
 "perflint" = { shell = "poetry run perflint ./src/" }
 
-lint = { shell = 'echo "Running black..." ; poetry run poe black ; echo "Running unify..." ; poetry run unify ./src -r -i ; echo "Running ruff..." ; poetry run poe ruff ; echo "Running mypy..." ; poetry run poe mypy ; echo Done!' }
+lint = { shell = 'echo "Running black..." ; poetry run poe black ; echo "Running unify..." ; poetry run poe unify ; echo "Running ruff..." ; poetry run poe ruff ; echo "Running mypy..." ; poetry run poe mypy ; echo Done!' }
 "lint:watch" = {shell = "poetry run poe lint; poetry run watchmedo shell-command --patterns='*.py;*.feature;*.toml' --recursive --drop --command='echo \"\nDetected changes, rerunning...\n\" ; poetry run poe lint'"}
 "lint:perf" = { shell = "poe lint; echo 'Running perflint...' poe perflint;"}
 

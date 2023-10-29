@@ -41,7 +41,7 @@ class DefaultRenderer:
                 *repr,
             ]
 
-        if error:
+        if state.error:
             repr = [
                 *repr,
                 f'{error}\n',
