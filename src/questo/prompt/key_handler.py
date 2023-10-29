@@ -22,6 +22,7 @@ def key_handler(prompt_state: PromptState, keypress: Key) -> PromptState:
 
     if keypress == Keys.CTRL_C:
         s.value = None
+        s.abort = True
     elif keypress == Keys.ENTER:
         s.exit = True
     elif keypress == Keys.LEFT_ARROW:
@@ -46,7 +47,8 @@ def key_handler(prompt_state: PromptState, keypress: Key) -> PromptState:
             del value_chars[s.cursor_position]
             s.value = ''.join(value_chars)
     elif keypress == Keys.ESC:
-        s.abort = True
+        s.value = None
+        s.exit = True
     elif keypress:
         if not (keypress == Keys.TAB and s.completion.in_completion_ctx):
             s.cursor_position += 1

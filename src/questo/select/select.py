@@ -8,7 +8,7 @@ from questo.select.renderer import DefaultRenderer
 from questo.select.state import SelectState
 
 
-class Select(GenericElement):
+class Select(GenericElement[SelectState]):
     """A select element."""
 
     def __init__(

@@ -8,7 +8,7 @@ from questo.prompt.renderer import DefaultRenderer
 from questo.prompt.state import PromptState
 
 
-class Prompt(GenericElement):
+class Prompt(GenericElement[PromptState]):
     """A prompt element."""
 
     def __init__(
