@@ -12,25 +12,42 @@ S = TypeVar('S')
 
 class GenericElement(Generic[S]):
     renderer: Union[Callable[[S], str], None]
-    _console: Union[Console, None]
+    _console: Union[Console, None] = None
     _state: Union[S, None] = None
     _live: Union[Live, None] = None
+    _reactive: bool = True
+    _copy: bool = True
 
     def __init__(
         self,
         state: Union[S, None] = None,
         renderer: Callable[[S], str] = lambda s: '',
-        console: Optional[Console] = None,
+        console: Optional[Console] = Console(highlight=False),
+        reactive: bool = True,
+        copy: bool = True,
     ) -> None:
+        """Creates a CLI Element
+
+        Args:
+            state (Union[S, None], optional): State of the CLI Element. Defaults to None.
+            renderer (Callable[[S], str], optional): Callable that renders the state to string.
+            console (Optional[Console], optional): rich.Console instance to use for displaying. Defaults to Console(highlight=False).
+            reactive (bool, optional): Flag that configures whether the element automatically rerenders on state assignment. Defaults to True.
+            copy (bool, optional): Flag that configures whether the state will be deep-copied when read or assigned. Defaults to True.
+        """
         self.state = state
         self.renderer = renderer
-        if console is None:
-            self._console = Console(highlight=False)
-        else:
-            self._console = console
+        self._reactive = reactive
+        self._copy = copy
+        self._console = console
 
     @contextmanager
     def diplayed(self, console: Optional[Console] = None) -> None:
+        """Context that displays the element
+
+        Args:
+            console (Optional[Console], optional): rich.Console instance to use for displaying. Defaults to None.
+        """
         if console is not None:
             self._console = console
         if self._state is not None:
@@ -44,12 +61,21 @@ class GenericElement(Generic[S]):
 
     @property
     def state(self) -> S:
-        return copy.deepcopy(self._state)
+        if self._copy:
+            return copy.deepcopy(self._state)
+        return self._state
 
     @state.setter
     def state(self, state: S) -> None:
-        self._state = copy.deepcopy(state)
-        if self._live is not None:
-            rendered = self.renderer(self._state)
-            self._live.update(renderable=rendered)
-            self._live.refresh()
+        if self._copy:
+            self._state = copy.deepcopy(state)
+        else:
+            self._state = state
+        if self._live is not None and self._reactive:
+            self.update()
+
+    def update(self) -> None:
+        """Updates the displayed element"""
+        rendered = self.renderer(self._state)
+        self._live.update(renderable=rendered)
+        self._live.refresh()
