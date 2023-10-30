@@ -14,7 +14,7 @@ class DefaultRenderer:
         title_style: StyleType = 'bold',
         cursor: str = '>',
         cursor_style: StyleType = 'cyan1 bold',
-        highlight_style: StyleType = 'pink1 bold',
+        highlight_style: StyleType = 'bold',
         tick: str = '✓',
         tick_style: StyleType = 'green',
     ) -> None:
@@ -31,11 +31,14 @@ class DefaultRenderer:
         highlight_style: Style = _parse_string_style(self.highlight_style)
         tick_style: Style = _parse_string_style(self.tick_style)
 
-        filter_query = _apply_style(f'{state.filter}', 'pink1 underline') if state.filter else ''
-        title = _apply_style(f'{state.title} ' if state.title else '', title_style)
-        error = _apply_style(f'\n{state.error}' if state.error else '', 'red')
+        filter_query = _apply_style(f'{state.filter}', 'grey35') if state.filter else ''
+        title = _apply_style(state.title if state.title else '', title_style)
+        error = _apply_style(state.error, 'red') if state.error else ''
         cursor = _apply_style(self.cursor, cursor_style)
         tick = _apply_style(self.tick, tick_style)
+
+        if state.filter:
+            title = f'{title} {filter_query}'
 
         options = list(
             filter(
@@ -55,30 +58,30 @@ class DefaultRenderer:
             ]
         else:
             rendered_options = [
-                f'{cursor if state.index == i else " "} {re.sub(matched.group(0), _apply_style(matched.group(0), highlight_style), option)}'
+                f'{cursor if state.index == i else " "} {re.sub(matched.group(0), _apply_style(matched.group(0), highlight_style), option) if state.filter else option}'
                 for i, matched, option in options
             ]
 
         repr = [
-            '\n'.join(rendered_options),
-            f'\n{pagination_line}',
-            error,
+            *rendered_options,
+            *([''] * ((state.page_size if state.pagination else len(state.options)) - len(rendered_options))),
         ]
 
         if state.title:
-            repr = [f'{title}{filter_query}\n', *repr]
-        else:
-            repr = [*repr, f'{filter_query}\n']
+            repr = [title, *repr]
 
-        if error:
-            repr = [*repr, f'\n{error}']
+        if state.pagination:
+            repr = [*repr, '\n' + pagination_line]
+
+        if state.error:
+            repr = [*repr, error]
 
         rendered_options.clear()
-        return ''.join(repr)
+        return '\n'.join(repr) + '\n'
 
 
 def _paginate(options: List[Tuple[int, re.Match, str]], index: int, page_size: int) -> Tuple[List[Tuple[int, re.Match, str]], int, int]:
-    total_pages = max((len(options) + 1) // page_size, 1)
+    total_pages = (len(options) // page_size) + 1
     current_page_index = min(index // page_size, total_pages - 1)
     return (
         options[current_page_index * page_size : min((current_page_index + 1) * page_size, len(options))],

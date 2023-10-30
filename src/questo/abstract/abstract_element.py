@@ -25,7 +25,7 @@ class GenericElement(Generic[S]):
         self.state = state
         self.renderer = renderer
         if console is None:
-            self._console = Console()
+            self._console = Console(highlight=False)
         else:
             self._console = console
 
