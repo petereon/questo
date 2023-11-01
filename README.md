@@ -2,7 +2,7 @@
 
 **Questo** is not your ordinary library of CLI elements; It's a framework. It's modular, extensible, Pythonic and brain friendly. You can build your own CLI elements, with custom key-press handling, validation and rendering, all in plain old Python; No magic.
 
-## Example
+## Basic Usage
 
 ```python
 from questo import select, prompt
