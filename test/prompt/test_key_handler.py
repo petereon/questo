@@ -141,8 +141,8 @@ def _(prompt_state=prompt_state):
 
 @test('Any other key adds character at cursor position')
 def _(prompt_state=prompt_state):
-    prompt_state.value = 'ac'
+    prompt_state.value = 'bc'
     prompt_state.cursor_position = 0
-    prompt_state = prompt.key_handler(prompt_state, 'b')
+    prompt_state = prompt.key_handler(prompt_state, 'a')
     assert prompt_state.value == 'abc'
     assert prompt_state.cursor_position == 1

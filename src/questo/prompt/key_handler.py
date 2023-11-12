@@ -51,9 +51,9 @@ def key_handler(prompt_state: PromptState, keypress: Key) -> PromptState:
         s.exit = True
     elif keypress:
         if not (keypress == Keys.TAB and s.completion.in_completion_ctx):
-            s.cursor_position += 1
             value_chars = [*s.value]
             value_chars.insert(s.cursor_position, str(keypress))
+            s.cursor_position += 1
             s.value = ''.join(value_chars)
 
     return s
