@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "questo"
-version = "0.1.1"
+version = "0.1.2"
 description = "A library of extensible and modular CLI prompt elements"
 authors = ["Peter Vyboch <pvyboch1@gmail.com>"]
 license = "MIT"
