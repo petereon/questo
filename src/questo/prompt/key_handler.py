@@ -11,10 +11,12 @@ def key_handler(prompt_state: PromptState, keypress: Key) -> PromptState:
 
     if keypress == Keys.TAB:
         if s.completion.in_completion_ctx and s.completion.options:
-            s.completion.index, s.cursor_position, s.value = completions_options_step(1, s)
+            s.completion.index, s.cursor_position, s.value = completions_options_step(s)
         else:
             s.completion.in_completion_ctx = True
             s.completion.index = 0
+            s.value = s.completion.options[s.completion.index]
+            s.cursor_position = len(s.value)
     else:
         s.completion.in_completion_ctx = False
         s.completion.options = []
@@ -49,7 +51,7 @@ def key_handler(prompt_state: PromptState, keypress: Key) -> PromptState:
     elif keypress == Keys.ESC:
         s.value = None
         s.exit = True
-    elif keypress:
+    elif keypress.is_printable:
         if not (keypress == Keys.TAB and s.completion.in_completion_ctx):
             value_chars = [*s.value]
             value_chars.insert(s.cursor_position, str(keypress))
@@ -59,8 +61,8 @@ def key_handler(prompt_state: PromptState, keypress: Key) -> PromptState:
     return s
 
 
-def completions_options_step(step: int, state: PromptState) -> Tuple[int, int, str]:
-    index = (state.completion.index + step) % len(state.completion.options)
+def completions_options_step(state: PromptState) -> Tuple[int, int, str]:
+    index = (state.completion.index + 1) % len(state.completion.options)
     value = state.completion.options[index]
     cursor_positon = len(value)
     return index, cursor_positon, value

@@ -1,6 +1,6 @@
 from ward import test, fixture
 from questo import prompt
-from yakh.key import Keys
+from yakh.key import Keys, Key
 
 
 @fixture
@@ -14,7 +14,7 @@ def prompt_state():
 
 @test('Tab key starts completion')
 def _(prompt_state=prompt_state):
-    prompt_state = prompt.key_handler(prompt_state, Keys.TAB)
+    prompt_state = prompt.key_handler(prompt_state, Key('\t', Keys.TAB, True))
     assert prompt_state.completion.in_completion_ctx is True
     assert prompt_state.completion.index == 0
 
@@ -24,7 +24,7 @@ def _(prompt_state=prompt_state):
     prompt_state.completion.in_completion_ctx = True
     prompt_state.completion.index = 0
 
-    prompt_state = prompt.key_handler(prompt_state, Keys.TAB)
+    prompt_state = prompt.key_handler(prompt_state, Key('\t', Keys.TAB, True))
     assert prompt_state.completion.in_completion_ctx is True
     assert prompt_state.completion.index == 1
 
@@ -34,7 +34,7 @@ def _(prompt_state=prompt_state):
     prompt_state.completion.in_completion_ctx = True
     prompt_state.completion.index = 1
 
-    prompt_state = prompt.key_handler(prompt_state, Keys.TAB)
+    prompt_state = prompt.key_handler(prompt_state, Key('\t', Keys.TAB, True))
     assert prompt_state.completion.in_completion_ctx is True
     assert prompt_state.completion.index == 0
 
@@ -143,6 +143,6 @@ def _(prompt_state=prompt_state):
 def _(prompt_state=prompt_state):
     prompt_state.value = 'bc'
     prompt_state.cursor_position = 0
-    prompt_state = prompt.key_handler(prompt_state, 'a')
+    prompt_state = prompt.key_handler(prompt_state, Key('a', tuple(), True))
     assert prompt_state.value == 'abc'
     assert prompt_state.cursor_position == 1
