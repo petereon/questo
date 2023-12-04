@@ -73,7 +73,7 @@ def _(prompt_state=prompt_state):
     assert prompt_state.cursor_position == 1
 
 
-@test('Right arrow stops incremeting cursor position at value length')
+@test('Right arrow stops incrementing cursor position at value length')
 def _(prompt_state=prompt_state):
     prompt_state.cursor_position = 1
     prompt_state.value = 'a'

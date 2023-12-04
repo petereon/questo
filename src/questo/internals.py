@@ -4,7 +4,7 @@ from typing import Iterator
 from rich.console import Console
 from rich.style import Style, StyleType
 
-_NO_STATE_ERROR = RuntimeError('No state provided. Please assing a state to the `.state` property.')
+_NO_STATE_ERROR = RuntimeError('No state provided. Please assign a state to the `.state` property.')
 
 
 @contextmanager

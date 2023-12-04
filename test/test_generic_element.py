@@ -42,7 +42,7 @@ def _():
 def _():
     selector = GenericElement()
     selector.state = select.SelectState(title='test', options=['a', 'b', 'c'], index=2)
-    with selector.diplayed():
+    with selector.displayed():
         assert selector._console is not None
 
 
@@ -50,7 +50,7 @@ def _():
 def _():
     selector = GenericElement()
     selector.state = select.SelectState(title='test', options=['a', 'b', 'c'], index=2)
-    with selector.diplayed():
+    with selector.displayed():
         assert selector._live is not None
     assert selector._live is None
 
@@ -62,7 +62,7 @@ def _():
     selector = GenericElement(renderer=mock_renderer)
     selector._live = mock_live
     state = select.SelectState(title='A', options=[])
-    with selector.diplayed():
+    with selector.displayed():
         selector.state = state
     mock_renderer.assert_called_once_with(selector._state)
     mock_live.update.assert_called_once_with(renderable='test')
@@ -83,6 +83,6 @@ def _():
     state = select.SelectState(title='A', options=[])
     selector.state = state
     mock_console = mock.MagicMock()
-    with selector.diplayed(console=mock_console):
+    with selector.displayed(console=mock_console):
         pass
     assert selector._console == mock_console

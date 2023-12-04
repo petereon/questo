@@ -32,7 +32,8 @@ class GenericElement(Generic[S]):
             state (Union[S, None], optional): State of the CLI Element. Defaults to None.
             renderer (Callable[[S], str], optional): Callable that renders the state to string.
             console (Optional[Console], optional): rich.Console instance to use for displaying. Defaults to Console(highlight=False).
-            reactive (bool, optional): Flag that configures whether the element automatically rerenders on state assignment. Defaults to True.
+            reactive (bool, optional): Flag that configures whether the element automatically rerenders on state assignment.
+            Defaults to True.
             copy (bool, optional): Flag that configures whether the state will be deep-copied when read or assigned. Defaults to True.
         """
         self.state = state
@@ -42,7 +43,7 @@ class GenericElement(Generic[S]):
         self._console = console
 
     @contextmanager
-    def diplayed(self, console: Optional[Console] = None) -> None:
+    def displayed(self, console: Optional[Console] = None) -> None:
         """Context that displays the element
 
         Args:
