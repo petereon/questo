@@ -16,8 +16,9 @@ class Prompt(GenericElement[PromptState]):
         state: Union[PromptState, None] = None,
         renderer: Callable[[PromptState], str] = DefaultRenderer().render,
         console: Optional[Console] = Console(highlight=False),
+        transient: bool = True,
     ) -> None:
-        super().__init__(state=state, renderer=renderer, console=console)
+        super().__init__(state=state, renderer=renderer, console=console, transient=transient)
 
     @property
     def result(self) -> str:
