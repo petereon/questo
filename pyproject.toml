@@ -144,7 +144,7 @@ ward-coverage = "^0.3.0"
 
 # Code Scanning and Formatting
 black = { version = "*", allow-prereleases = true }
-ruff = "^0.0.239"
+ruff = "^0.8.0"
 mypy = "^0.942"
 radon = '*'
 xenon = '*'
