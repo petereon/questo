@@ -130,46 +130,6 @@ max-complexity = 10
 [tool.poetry.dependencies]
 python = ">=3.7.8,<4.0.0"
 rich = ">=12.2.0"
-python-yakh = "^0.3.2"
-
-[tool.poetry.group.test.dependencies]
-expycted = '*'
-mock = '*'
-poethepoet = '*'
-ward = "0.67.1b0"
-ward-coverage = "^0.3.0"
+python-yakh = "^0.4.0"
 
 
-[tool.poetry.group.dev.dependencies]
-
-# Code Scanning and Formatting
-black = { version = "*", allow-prereleases = true }
-ruff = "^0.0.239"
-mypy = "^0.942"
-radon = '*'
-xenon = '*'
-
-toml-sort = '*'
-isort = '*'
-unify = "*"
-
-## Performance
-perflint = "^0.7.3"
-
-# Testing
-ward = "0.67.1b0"
-mock = '*'
-watchdog = '*'
-
-# Coverage
-ward-coverage = "^0.3.0"
-
-# Task Runner
-poethepoet = "*"
-
-# Docs
-pydoc-markdown = "^4.6.3"
-
-# CI
-pre-commit = "*"
-detect-secrets = "^1.2.0"

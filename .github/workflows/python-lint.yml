@@ -32,6 +32,7 @@ jobs:
       run: |
         python -m pip install poetry poethepoet
         poetry install
+        poetry run pip install -r requirements-dev.txt
     - name: Lint the code
       run: |
         poe lint
