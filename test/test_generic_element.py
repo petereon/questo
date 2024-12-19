@@ -1,27 +1,24 @@
 from unittest import mock
 from questo import select
 from questo.abstract.abstract_element import GenericElement
-from ward import test
+import pytest
 
 
-@test('GenericElement can be instantiated without arguments')
-def _():
+def test_generic_element_can_be_instantiated_without_arguments():
     try:
         GenericElement()
     except Exception:
-        assert False, 'Cannot be instantiated without arguments'
+        pytest.fail('Cannot be instantiated without arguments')
 
 
-@test('GenericElement can be instantiated with arguments')
-def _():
+def test_generic_element_can_be_instantiated_with_arguments():
     try:
         GenericElement(renderer=lambda x: str(x))
     except Exception:
-        assert False, 'Cannot be instantiated with arguments'
+        pytest.fail('Cannot be instantiated with arguments')
 
 
-@test("GenericElement doesn't mutate the original state")
-def _():
+def test_generic_element_does_not_mutate_the_original_state():
     selector = GenericElement()
     state = select.SelectState(title='A', options=[])
     selector.state = state
@@ -29,8 +26,7 @@ def _():
     assert selector.state.title == 'A', 'State was mutated'
 
 
-@test("GenericElement.states doesn't get mutated unless explicitly assigned")
-def _():
+def test_generic_element_states_does_not_get_mutated_unless_explicitly_assigned():
     selector = GenericElement()
     selector.state = select.SelectState(title='A', options=[])
     state = selector.state
@@ -38,16 +34,14 @@ def _():
     assert selector.state.title == 'A', 'State was not read'
 
 
-@test('GenericElement.displayed creates new console if none is assigned or passed and destroys it right after')
-def _():
+def test_generic_element_displayed_creates_new_console_if_none_is_assigned_or_passed_and_destroys_it_right_after():
     selector = GenericElement()
     selector.state = select.SelectState(title='test', options=['a', 'b', 'c'], index=2)
     with selector.displayed():
         assert selector._console is not None
 
 
-@test('GenericElement.displayed creates new live display and destroys it right after')
-def _():
+def test_generic_element_displayed_creates_new_live_display_and_destroys_it_right_after():
     selector = GenericElement()
     selector.state = select.SelectState(title='test', options=['a', 'b', 'c'], index=2)
     with selector.displayed():
@@ -55,8 +49,7 @@ def _():
     assert selector._live is None
 
 
-@test('GenericElement.state assignment executes the rendering handler')
-def _():
+def test_generic_element_state_assignment_executes_the_rendering_handler():
     mock_renderer = mock.MagicMock(return_value='test')
     mock_live = mock.MagicMock()
     selector = GenericElement(renderer=mock_renderer)
@@ -69,16 +62,14 @@ def _():
     mock_live.refresh.assert_called_once()
 
 
-@test('GenericElement uses the console provided in the init argument')
-def _():
+def test_generic_element_uses_the_console_provided_in_the_init_argument():
     mock_console = mock.MagicMock()
     selector = GenericElement(console=mock_console)
     select.SelectState(title='A', options=[])
     assert selector._console == mock_console
 
 
-@test('GenericElement.displayed uses the console provided in the argument')
-def _():
+def test_generic_element_displayed_uses_the_console_provided_in_the_argument():
     selector = GenericElement()
     state = select.SelectState(title='A', options=[])
     selector.state = state

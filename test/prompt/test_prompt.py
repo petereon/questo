@@ -1,18 +1,16 @@
-from ward import test, expect
+import pytest
 from questo import prompt
 from questo.internals import _NO_STATE_ERROR
 
 
-@test('GenericElement.result raises an error if no state is assigned')
-def _():
+def test_generic_element_result_raises_error_if_no_state_assigned():
     selector = prompt.Prompt()
-    with expect.raises(RuntimeError) as e:
-        selector.result
-        assert e.value == _NO_STATE_ERROR
+    with pytest.raises(RuntimeError) as e:
+        _ = selector.result
+    assert e.value == _NO_STATE_ERROR
 
 
-@test('GenericElement.result returns the index from the state')
-def _():
+def test_generic_element_result_returns_the_index_from_the_state():
     selector = prompt.Prompt()
     selector.state = prompt.PromptState(title='test', value='Test value')
     assert selector.result == 'Test value'
