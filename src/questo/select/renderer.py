@@ -54,11 +54,11 @@ class DefaultRenderer:
 
         if state.select_multiple:
             rendered_options = [
-                f'{cursor if state.index == i else " "} {tick if i in state.selected_indexes else " "} {option}' for i, _, option in options
+                '{} {} {}'.format(cursor if state.index == i else ' ', tick if i in state.selected_indexes else ' ', option) for i, _, option in options
             ]
         else:
             rendered_options = [
-                f'{cursor if state.index == i else " "} {re.sub(matched.group(0), _apply_style(matched.group(0), highlight_style), option) if state.filter else option}'
+                '{} {}'.format(cursor if state.index == i else ' ', re.sub(matched.group(0), _apply_style(matched.group(0), highlight_style), option) if state.filter else option)
                 for i, matched, option in options
             ]
 

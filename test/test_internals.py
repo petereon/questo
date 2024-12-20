@@ -1,16 +1,10 @@
-from ward import test
+from questo.internals import _apply_style, _parse_string_style
+from rich.style import Style
 
 
-@test('Style can be applied to a string')
-def _():
-    from questo.internals import _apply_style
-
+def test_apply_style():
     assert _apply_style('test', 'bold') == '[bold]test[/bold]'
 
 
-@test('Style can be parsed from string')
-def _():
-    from questo.internals import _parse_string_style
-    from rich.style import Style
-
+def test_parse_string_style():
     assert _parse_string_style('bold') == Style.parse('bold')

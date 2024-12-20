@@ -1,9 +1,8 @@
-from ward import test
+import pytest
 from questo import prompt
 
 
-@test('Prompt state with title, value, 0 cursor positions and no error renders')
-def _():
+def test_prompt_state_with_title_value_0_cursor_positions_and_no_error_renders():
     selector = prompt.Prompt()
     selector.state = prompt.PromptState(title='test', value='Test value')
     assert (
@@ -11,8 +10,7 @@ def _():
     )
 
 
-@test('Prompt state with title, value, 1 cursor position and no error renders')
-def _():
+def test_prompt_state_with_title_value_1_cursor_position_and_no_error_renders():
     selector = prompt.Prompt()
     selector.state = prompt.PromptState(title='test', value='Test value', cursor_position=1)
     assert (
@@ -20,8 +18,7 @@ def _():
     )
 
 
-@test('Prompt state with title, value, 0 cursor positions and error renders')
-def _():
+def test_prompt_state_with_title_value_0_cursor_positions_and_error_renders():
     selector = prompt.Prompt()
     selector.state = prompt.PromptState(title='test', value='Test value', error='Test error')
     assert (
@@ -30,8 +27,7 @@ def _():
     )
 
 
-@test('Prompt state with title, value, 0 cursor positions, error and completion options renders')
-def _():
+def test_prompt_state_with_title_value_0_cursor_positions_error_and_completion_options_renders_index_0():
     selector = prompt.Prompt()
     selector.state = prompt.PromptState(
         title='test',
@@ -45,8 +41,7 @@ def _():
     )
 
 
-@test('Prompt state with title, value, 0 cursor positions, error and completion options renders')
-def _():
+def test_prompt_state_with_title_value_0_cursor_positions_error_and_completion_options_renders_index_1():
     selector = prompt.Prompt()
     selector.state = prompt.PromptState(
         title='test',

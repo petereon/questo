@@ -1,9 +1,9 @@
-from ward import test, fixture
+import pytest
 from questo import prompt
 from yakh.key import Keys, Key
 
 
-@fixture
+@pytest.fixture
 def prompt_state():
     return prompt.PromptState(
         value='test',
@@ -12,15 +12,13 @@ def prompt_state():
     )
 
 
-@test('Tab key starts completion')
-def _(prompt_state=prompt_state):
+def test_tab_key_starts_completion(prompt_state):
     prompt_state = prompt.key_handler(prompt_state, Key('\t', Keys.TAB, True))
     assert prompt_state.completion.in_completion_ctx is True
     assert prompt_state.completion.index == 0
 
 
-@test('Tab increments completion index when in completion context')
-def _(prompt_state=prompt_state):
+def test_tab_increments_completion_index_when_in_completion_context(prompt_state):
     prompt_state.completion.in_completion_ctx = True
     prompt_state.completion.index = 0
 
@@ -29,8 +27,7 @@ def _(prompt_state=prompt_state):
     assert prompt_state.completion.index == 1
 
 
-@test('Tab wraps completion index when in completion context')
-def _(prompt_state=prompt_state):
+def test_tab_wraps_completion_index_when_in_completion_context(prompt_state):
     prompt_state.completion.in_completion_ctx = True
     prompt_state.completion.index = 1
 
@@ -39,65 +36,56 @@ def _(prompt_state=prompt_state):
     assert prompt_state.completion.index == 0
 
 
-@test('Ctrl-C sets abort flag and clears value')
-def _(prompt_state=prompt_state):
+def test_ctrl_c_sets_abort_flag_and_clears_value(prompt_state):
     prompt_state = prompt.key_handler(prompt_state, Keys.CTRL_C)
     assert prompt_state.abort is True
     assert prompt_state.value is None
 
 
-@test('Enter sets exit flag')
-def _(prompt_state=prompt_state):
+def test_enter_sets_exit_flag(prompt_state):
     prompt_state = prompt.key_handler(prompt_state, Keys.ENTER)
     assert prompt_state.exit is True
 
 
-@test('Left arrow decrements cursor position')
-def _(prompt_state=prompt_state):
+def test_left_arrow_decrements_cursor_position(prompt_state):
     prompt_state.cursor_position = 1
     prompt_state = prompt.key_handler(prompt_state, Keys.LEFT_ARROW)
     assert prompt_state.cursor_position == 0
 
 
-@test('Left arrow stops decrementing cursor position at 0')
-def _(prompt_state=prompt_state):
+def test_left_arrow_stops_decrementing_cursor_position_at_0(prompt_state):
     prompt_state.cursor_position = 0
     prompt_state = prompt.key_handler(prompt_state, Keys.LEFT_ARROW)
     assert prompt_state.cursor_position == 0
 
 
-@test('Right arrow increments cursor position')
-def _(prompt_state=prompt_state):
+def test_right_arrow_increments_cursor_position(prompt_state):
     prompt_state.cursor_position = 0
     prompt_state = prompt.key_handler(prompt_state, Keys.RIGHT_ARROW)
     assert prompt_state.cursor_position == 1
 
 
-@test('Right arrow stops incrementing cursor position at value length')
-def _(prompt_state=prompt_state):
+def test_right_arrow_stops_incrementing_cursor_position_at_value_length(prompt_state):
     prompt_state.cursor_position = 1
     prompt_state.value = 'a'
     prompt_state = prompt.key_handler(prompt_state, Keys.RIGHT_ARROW)
     assert prompt_state.cursor_position == 1
 
 
-@test('Home button moves cursor to 0')
-def _(prompt_state=prompt_state):
+def test_home_button_moves_cursor_to_0(prompt_state):
     prompt_state.cursor_position = 3
     prompt_state = prompt.key_handler(prompt_state, Keys.HOME)
     assert prompt_state.cursor_position == 0
 
 
-@test('End button moves cursor to value length')
-def _(prompt_state=prompt_state):
+def test_end_button_moves_cursor_to_value_length(prompt_state):
     prompt_state.cursor_position = 0
     prompt_state.value = 'test'
     prompt_state = prompt.key_handler(prompt_state, Keys.END)
     assert prompt_state.cursor_position == 4
 
 
-@test('Delete removes character at cursor position')
-def _(prompt_state=prompt_state):
+def test_delete_removes_character_at_cursor_position(prompt_state):
     prompt_state.cursor_position = 1
     prompt_state.value = 'test'
     prompt_state = prompt.key_handler(prompt_state, Keys.DELETE)
@@ -105,8 +93,7 @@ def _(prompt_state=prompt_state):
     assert prompt_state.cursor_position == 1
 
 
-@test('Delete does nothing at end of value')
-def _(prompt_state=prompt_state):
+def test_delete_does_nothing_at_end_of_value(prompt_state):
     prompt_state.cursor_position = 4
     prompt_state.value = 'test'
     prompt_state = prompt.key_handler(prompt_state, Keys.DELETE)
@@ -114,8 +101,7 @@ def _(prompt_state=prompt_state):
     assert prompt_state.cursor_position == 4
 
 
-@test('Backspace removes character before cursor position')
-def _(prompt_state=prompt_state):
+def test_backspace_removes_character_before_cursor_position(prompt_state):
     prompt_state.cursor_position = 1
     prompt_state.value = 'test'
     prompt_state = prompt.key_handler(prompt_state, Keys.BACKSPACE)
@@ -123,8 +109,7 @@ def _(prompt_state=prompt_state):
     assert prompt_state.cursor_position == 0
 
 
-@test('Backspace does nothing at start of value')
-def _(prompt_state=prompt_state):
+def test_backspace_does_nothing_at_start_of_value(prompt_state):
     prompt_state.cursor_position = 0
     prompt_state.value = 'test'
     prompt_state = prompt.key_handler(prompt_state, Keys.BACKSPACE)
@@ -132,15 +117,13 @@ def _(prompt_state=prompt_state):
     assert prompt_state.cursor_position == 0
 
 
-@test('Escape sets exit flag and clears value')
-def _(prompt_state=prompt_state):
+def test_escape_sets_exit_flag_and_clears_value(prompt_state):
     prompt_state = prompt.key_handler(prompt_state, Keys.ESC)
     assert prompt_state.exit is True
     assert prompt_state.value is None
 
 
-@test('Any other key adds character at cursor position')
-def _(prompt_state=prompt_state):
+def test_any_other_key_adds_character_at_cursor_position(prompt_state):
     prompt_state.value = 'bc'
     prompt_state.cursor_position = 0
     prompt_state = prompt.key_handler(prompt_state, Key('a', tuple(), True))
