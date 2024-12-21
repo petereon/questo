@@ -9,7 +9,7 @@ black==24.10.0
 ruff==0.8.4
 mypy==1.13.0
 radon==6.0.1
-xenon==0.9.1
+xenon==0.9.3
 toml-sort==0.24.2
 isort==5.11.5
 unify==0.5
