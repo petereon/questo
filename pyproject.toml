@@ -133,3 +133,8 @@ rich = ">=12.2.0"
 python-yakh = "^0.4.1"
 
 
+
+[dependency-groups]
+dev = [
+    "pytest (==6.2.5)"
+]
