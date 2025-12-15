@@ -15,6 +15,6 @@ isort==5.11.5
 unify==0.5
 perflint==0.8.1
 watchdog==6.0.0
-pydoc-markdown==4.7.0
+pydoc-markdown==4.8.2
 pre-commit==4.0.1
 detect-secrets==1.4.0
