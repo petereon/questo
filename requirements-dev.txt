@@ -17,4 +17,4 @@ perflint==0.8.1
 watchdog==6.0.0
 pydoc-markdown==4.7.0
 pre-commit==4.0.1
-detect-secrets==1.4.0
+detect-secrets==1.5.0
