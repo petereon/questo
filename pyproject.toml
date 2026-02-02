@@ -136,5 +136,5 @@ python-yakh = "^0.4.1"
 
 [dependency-groups]
 dev = [
-    "pytest (==6.2.5)"
+    "pytest (==9.0.2)"
 ]
